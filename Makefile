@@ -7,7 +7,7 @@ run:
 
 .PHONY:build
 build:
-	go build -o $(PROGRAM_NAME) $(PROJECT_PATH)
+	go build -o ./$(PROGRAM_NAME) $(PROJECT_PATH)
 
 .PHONY:test
 test:
@@ -19,4 +19,4 @@ lint:
 
 .PHONY: exec
 exec:
-	build && sudo mv $(PROJECT_NAME) /usr/local/bin/${PROJECT_NAME}
+	make build && sudo mv $(PROJECT_NAME) /usr/local/bin/${PROJECT_NAME}
