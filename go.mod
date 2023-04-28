@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/gdamore/tcell/v2 v2.6.0
-	github.com/pkg/errors v0.9.1
 	github.com/rivo/tview v0.0.0-20230406072732-e22ce9588bb4
 	github.com/sashabaranov/go-openai v1.9.0
 	github.com/spf13/viper v1.15.0

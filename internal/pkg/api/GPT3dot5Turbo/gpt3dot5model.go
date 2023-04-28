@@ -2,13 +2,14 @@ package GPT3dot5Turbo
 
 import (
 	"context"
-	openai "github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai"
 	"terminalGPT/config/interfaces"
 )
 
 type GPT3dot5Turbo struct {
-	client *openai.Client
-	ctx    context.Context
+	client   *openai.Client
+	ctx      context.Context
+	messages []openai.ChatCompletionMessage
 
 	configReader interfaces.IConfigReader
 }
@@ -23,19 +24,27 @@ func NewGPT3(configReader interfaces.IConfigReader) *GPT3dot5Turbo {
 }
 
 func (g *GPT3dot5Turbo) GenerateText(prompt string) (string, error) {
-	responce, err := g.client.CreateChatCompletion(g.ctx, openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
-		Messages: []openai.ChatCompletionMessage{{
-			Role:    openai.ChatMessageRoleUser,
-			Content: prompt,
-		}},
+	g.messages = append(g.messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: prompt,
+	})
+
+	response, err := g.client.CreateChatCompletion(g.ctx, openai.ChatCompletionRequest{
+		Model:    openai.GPT3Dot5Turbo,
+		Messages: g.messages,
 	})
 
 	if err != nil {
 		return "", err
 	}
 
-	return responce.Choices[0].Message.Content, nil
+	content := response.Choices[0].Message.Content
+	g.messages = append(g.messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleAssistant,
+		Content: content,
+	})
+
+	return content, nil
 }
 
 func (g *GPT3dot5Turbo) GenerateStreamText(prompt string) (*openai.ChatCompletionStream, error) {
