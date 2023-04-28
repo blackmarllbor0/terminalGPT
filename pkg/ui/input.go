@@ -8,8 +8,7 @@ import (
 
 func (ui *UserInterface) initInput() *tview.TextArea {
 	ui.input = tview.NewTextArea().
-		SetLabel("Enter text: ").
-		SetPlaceholder("Hello, what is your name?")
+		SetLabel("Enter text: ")
 
 	ui.controlInput()
 
@@ -22,17 +21,19 @@ func (ui *UserInterface) controlInput() {
 		case tcell.KeyEnter:
 			promt := ui.input.GetText()
 			ui.input.SetText("", false)
+			ui.setOutput(fmt.Sprintf("You: %v", promt))
+
 			responce, err := ui.gptModelApi.GenerateText(promt)
 			if err != nil {
 				ui.setOutput(err.Error())
 				return event
 			}
 
-			ui.setOutput(responce)
+			ui.setOutput(fmt.Sprintf("GPTModel: %v", responce))
 		case tcell.KeyEscape:
 			ui.stop()
 
-			fmt.Println("До свидания! 👋")
+			fmt.Println("Goodbye! 👋")
 		}
 
 		return event

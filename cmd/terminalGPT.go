@@ -6,7 +6,7 @@ import (
 	"log"
 	"terminalGPT/config"
 	"terminalGPT/internal/app/flags"
-	"terminalGPT/internal/pkg/api/GPT3"
+	"terminalGPT/internal/pkg/api/GPT3dot5Turbo"
 	"terminalGPT/pkg/dir/yaml"
 	"terminalGPT/pkg/ui"
 )
@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	gptModel := GPT3.NewGPT3(configReaderService)
+	gptModel := GPT3dot5Turbo.NewGPT3(configReaderService)
 
 	query, newApiKey := flags.Parse()
 	if query == "" && newApiKey == "" {

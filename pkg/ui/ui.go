@@ -27,7 +27,7 @@ func (ui *UserInterface) Start() error {
 	grid.AddItem(ui.initOutput(), 1, 0, 1, 1, 0, 0, false)
 	grid.AddItem(ui.initInput(), 2, 0, 1, 1, 0, 0, true)
 
-	if err := ui.app.SetRoot(grid, true).Run(); err != nil {
+	if err := ui.app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		return err
 	}
 
