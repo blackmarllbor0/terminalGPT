@@ -3,16 +3,19 @@ package ui
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"terminalGPT/internal/pkg/api/interfaces"
 )
 
 type UserInterface struct {
 	app    *tview.Application
 	input  *tview.TextArea
 	output *tview.TextView
+
+	gptModelApi interfaces.GPTGenerateText
 }
 
-func NewUserInterface() *UserInterface {
-	return &UserInterface{}
+func NewUserInterface(gptModelApi interfaces.GPTGenerateText) *UserInterface {
+	return &UserInterface{gptModelApi: gptModelApi}
 }
 
 func (ui *UserInterface) Start() error {
