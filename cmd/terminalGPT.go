@@ -6,6 +6,7 @@ import (
 	"log"
 	"terminalGPT/config"
 	"terminalGPT/internal/app/flags"
+	"terminalGPT/internal/app/repository/mongo"
 	"terminalGPT/internal/pkg/api/GPT3dot5Turbo"
 	"terminalGPT/pkg/dir/yaml"
 	"terminalGPT/pkg/ui"
@@ -18,6 +19,13 @@ func main() {
 	if err := configService.LoadConfig("config", "yml", "config"); err != nil {
 		log.Fatal(err)
 	}
+
+	DBService := mongo.NewClient(configReaderService)
+	if err := DBService.Connection(); err != nil {
+		log.Fatal(err)
+	}
+
+	defer DBService.Disconnect()
 
 	gptModel := GPT3dot5Turbo.NewGPT3(configReaderService)
 
