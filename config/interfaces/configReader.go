@@ -1,6 +1,6 @@
 package interfaces
 
-type IConfigReader interface {
+type ConfigReader interface {
 	SetConfigName(name string)
 	SetConfigType(t string)
 	AddConfigPath(path string)

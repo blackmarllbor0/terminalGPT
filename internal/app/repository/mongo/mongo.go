@@ -2,21 +2,23 @@ package mongo
 
 import (
 	"context"
-	configI "terminalGPT/config/interfaces"
-
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	configI "terminalGPT/config/interfaces"
 )
 
 type Client struct {
-	client *mongo.Client
+	client      *mongo.Client
+	collections map[string]*mongo.Collection
+	ctx         context.Context
 
-	configReader configI.IConfigReader
+	configReader configI.ConfigReader
 }
 
-func NewClient(configReader configI.IConfigReader) *Client {
+func NewClient(configReader configI.ConfigReader, ctx context.Context) *Client {
 	return &Client{
 		configReader: configReader,
+		ctx:          ctx,
 	}
 }
 
@@ -29,17 +31,27 @@ func (c *Client) Connection() error {
 		return err
 	}
 
-	if err := c.client.Connect(context.Background()); err != nil {
+	if err := c.client.Connect(c.ctx); err != nil {
 		return err
 	}
 
-	if err := c.client.Ping(context.Background(), nil); err != nil {
+	if err := c.client.Ping(c.ctx, nil); err != nil {
 		return err
 	}
+
+	c.collections = make(map[string]*mongo.Collection)
+
+	c.collections[CHATS] = c.client.
+		Database(c.configReader.GetString("db.db-name")).
+		Collection(c.configReader.GetString("db.collection"))
 
 	return nil
 }
 
 func (c *Client) Disconnect() {
 	_ = c.client.Disconnect(nil)
+}
+
+func (c *Client) GetCollectionByName(name string) *mongo.Collection {
+	return c.collections[name]
 }

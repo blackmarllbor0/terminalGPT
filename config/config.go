@@ -14,11 +14,11 @@ const (
 )
 
 type Config struct {
-	configReader configI.IConfigReader
+	configReader configI.ConfigReader
 	yamlSetter   yamlI.IYAML
 }
 
-func NewConfig(configReader configI.IConfigReader, yamlSetter yamlI.IYAML) *Config {
+func NewConfig(configReader configI.ConfigReader, yamlSetter yamlI.IYAML) *Config {
 	return &Config{
 		configReader: configReader,
 		yamlSetter:   yamlSetter,

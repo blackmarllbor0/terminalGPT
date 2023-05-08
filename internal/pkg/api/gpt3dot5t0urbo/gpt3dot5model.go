@@ -1,9 +1,13 @@
-package GPT3dot5Turbo
+package gpt3dot5t0urbo
 
 import (
 	"context"
-	"github.com/sashabaranov/go-openai"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"terminalGPT/config/interfaces"
+	"terminalGPT/internal/app/repository/interfaces/database"
+
+	"github.com/sashabaranov/go-openai"
 )
 
 type GPT3dot5Turbo struct {
@@ -11,19 +15,22 @@ type GPT3dot5Turbo struct {
 	ctx      context.Context
 	messages []openai.ChatCompletionMessage
 
-	configReader interfaces.IConfigReader
+	configReader interfaces.ConfigReader
+
+	database.Chats
 }
 
-func NewGPT3(configReader interfaces.IConfigReader) *GPT3dot5Turbo {
+func NewGPT3(configReader interfaces.ConfigReader, chatsRepository database.Chats) *GPT3dot5Turbo {
 	apiKey := configReader.GetString("api-key")
 	return &GPT3dot5Turbo{
 		client:       openai.NewClient(apiKey),
 		ctx:          context.Background(),
 		configReader: configReader,
+		Chats:        chatsRepository,
 	}
 }
 
-func (g *GPT3dot5Turbo) GenerateText(prompt string) (string, error) {
+func (g *GPT3dot5Turbo) GenerateText(prompt string, chatID primitive.ObjectID) (string, error) {
 	g.messages = append(g.messages, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
 		Content: prompt,
@@ -44,6 +51,12 @@ func (g *GPT3dot5Turbo) GenerateText(prompt string) (string, error) {
 		Content: content,
 	})
 
+	go func() {
+		if err := g.UpdateChatHistory(chatID, g.messages); err != nil {
+			log.Printf("a write error occurred in the database: %v", err)
+		}
+	}()
+
 	return content, nil
 }
 
@@ -63,4 +76,16 @@ func (g *GPT3dot5Turbo) GenerateStreamText(prompt string) (*openai.ChatCompletio
 	}
 
 	return stream, nil
+}
+func (g *GPT3dot5Turbo) UpdateChatMessages(chatID primitive.ObjectID) error {
+	currentChat, err := g.GetChat(chatID)
+	if err != nil {
+		return err
+	}
+
+	if len(currentChat.Content) > 0 {
+		g.messages = currentChat.Content
+	}
+
+	return nil
 }
